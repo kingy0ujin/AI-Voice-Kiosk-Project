@@ -120,7 +120,7 @@ cd ai-voice-kiosk
 
 python -m venv venv
 source venv/bin/activate  # Mac/Linux
-# venv\Scripts\activate  # Windows
+venv\Scripts\activate  # Windows
 
 
 의존성 패키지 설치
