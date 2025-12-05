@@ -112,7 +112,7 @@ User: "라떼 줘" -> AI: "따뜻한 걸로 드릴까요?" -> User: "아니 차�
 
 레포지토리 클론
 
-git clone [https://github.com/your-org/ai-voice-kiosk.git](https://github.com/your-org/ai-voice-kiosk.git)
+git clone "https://github.com/kingy0ujin/AI-Voice-Kiosk-Project.git"
 cd ai-voice-kiosk
 
 
