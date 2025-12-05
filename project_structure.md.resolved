@@ -1,0 +1,32 @@
+# AI Voice Kiosk Project Structure
+
+## Directory Tree
+
+```
+ai-voice-kiosk/
+├── .env.example              # 환경 변수 템플릿 (API 키 설정)
+├── requirements.txt         # 파이썬 의존성 패키지 목록
+├── src/                     # 소스 코드 디렉토리
+│   ├── main.py              # 메인 애플리케이션 진입점 (FastAPI)
+│   ├── core/                # 핵심 설정 및 공통 모듈
+│   │   └── config.py        # 환경 변수 로드 및 설정 관리
+│   ├── audio/               # 음성 처리 모듈
+│   │   ├── stt.py           # Speech-to-Text (음성 인식)
+│   │   └── tts.py           # Text-to-Speech (음성 합성)
+│   ├── llm/                 # 대규모 언어 모델 연동 모듈
+│   │   └── client.py        # OpenAI/LLM 클라이언트
+│   └── rag/                 # RAG (검색 증강 생성) 모듈
+│       └── vector_db.py     # 벡터 데이터베이스 (ChromaDB) 관리
+├── data/                    # 데이터 저장소 (DB, 임베딩 등)
+└── tests/                   # 테스트 코드
+    └── test_basic.py        # 기본 기능 및 임포트 테스트
+```
+
+## Module Descriptions
+
+1.  **src/main.py**: FastAPI 앱을 실행하고 HTTP 요청을 처리하는 메인 서버 파일입니다. `/health` 엔드포인트로 서버 상태를 확인할 수 있습니다.
+2.  **src/core/config.py**: `.env` 파일에서 API 키와 설정을 불러와 프로젝트 전반에서 사용할 수 있게 해주는 설정 모듈입니다.
+3.  **src/audio/stt.py**: 사용자의 목소리(오디오 파일)를 텍스트로 변환하는 클래스가 포함되어 있습니다. (OpenAI Whisper 활용 예정)
+4.  **src/audio/tts.py**: 텍스트 답변을 음성 파일로 변환하는 클래스입니다. (gTTS/ElevenLabs 활용 예정)
+5.  **src/llm/client.py**: 사용자의 질문과 검색된 정보를 바탕으로 답변을 생성하는 LLM 클라이언트입니다.
+6.  **src/rag/vector_db.py**: 메뉴 데이터를 저장하고 검색하기 위한 ChromaDB 관리 모듈입니다.

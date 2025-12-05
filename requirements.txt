@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+openai
+python-dotenv
+chromadb
+pydantic
+httpx
+# sqlalchemy # Optional for now if using raw sqlite or built-in
+gTTS
+# elevenlabs # Optional, using REST API or library
+pytest
