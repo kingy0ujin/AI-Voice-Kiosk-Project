@@ -40,69 +40,51 @@ TTS (Text-to-Speech): 생성된 텍스트를 음성으로 변환하여 출력
 
 AI 개발 도구(IDE) 및 팀원이 환경을 구성할 때 다음 스택을 기준으로 합니다.
 
-구분
+### 🧠 AI Core (음성 및 지능)
 
-기술/라이브러리
+LLM (Large Language Model)
 
-버전(권장)
+기술: OpenAI API / Claude 3.5 (권장: GPT-4o)
 
-용도
+역할: 자연어 이해(NLU) 및 응답 생성
+
+STT (Speech-to-Text)
+
+기술: Whisper / Google STT (권장: large-v3)
+
+역할: 고정밀 음성 인식
+
+TTS (Text-to-Speech)
+
+기술: ElevenLabs / OpenAI TTS (권장: Multilingual)
+
+역할: 자연스러운 음성 출력
+
+### 💻 System & Data (백엔드 및 데이터)
 
 Language
 
-Python
+기술: Python (권장: 3.11+)
 
-3.11+
-
-전체 프로젝트 메인 언어
-
-LLM
-
-OpenAI API (GPT-4o) / Claude 3.5
-
-Latest
-
-자연어 이해 및 응답 생성
-
-STT
-
-OpenAI Whisper / Google STT
-
--
-
-고정밀 음성 인식
-
-TTS
-
-gTTS / OpenAI TTS / ElevenLabs
-
--
-
-자연스러운 음성 출력
+역할: 전체 프로젝트 메인 언어
 
 Backend
 
-FastAPI
+기술: FastAPI (권장: 0.100+)
 
-0.100+
-
-비동기 API 처리 및 웹소켓 통신
+역할: 비동기 API 서버 및 웹소켓 통신
 
 Vector DB
 
-ChromaDB / FAISS
+기술: ChromaDB / FAISS
 
--
+역할: 메뉴 데이터 임베딩 및 RAG 검색
 
-메뉴 데이터 임베딩 및 RAG 검색
+Database
 
-Data
+기술: SQLite / JSON
 
-SQLite / JSON
-
--
-
-정형 데이터(가격, 재고) 관리
+역할: 정형 데이터(가격, 재고) 관리
 
 ## 4. 핵심 기능 (Key Features)
 
