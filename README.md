@@ -1,4 +1,6 @@
 # AI Voice Kiosk Project
+## 실제 구현 화면
+<img width="324" height="879" alt="스크린샷 2025-12-12 155917" src="https://github.com/user-attachments/assets/2a1ae24e-646f-4825-96e9-647be3607158" />
 
 ## 1. 개요 및 목적 (Overview & Purpose)
 **AI Voice Kiosk**는 최신 생성형 AI 기술(LLM)과 음성 인식 기술(STT)을 결합하여, 사용자가 사람과 대화하듯이 자연스럽게 주문할 수 있는 차세대 키오스크 시스템입니다. 
