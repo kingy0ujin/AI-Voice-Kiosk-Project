@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Kiosk</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Kiosk</h1>
+            <p class="subtitle">음성으로 주문해 보세요</p>
+        </header>
+
+        <main>
+            <!-- 1. Menu Section (Tabs) -->
+            <div id="menu-section">
+                <div class="result-tabs">
+                    <button class="tab-btn active" onclick="openTab('burger')">버거</button>
+                    <button class="tab-btn" onclick="openTab('side')">사이드</button>
+                    <button class="tab-btn" onclick="openTab('drink')">음료</button>
+                </div>
+
+                <div id="burger" class="tab-content active">
+                    <div class="menu-item" onclick="addToCart('불고기 버거', 5000)">
+                        <img src="/static/burger.png" alt="Bulgogi Burger">
+                        <p class="name">불고기 버거</p>
+                        <p class="price">₩5,000</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('치즈 버거', 5500)">
+                        <img src="/static/burger.png" alt="Cheese Burger">
+                        <p class="name">치즈 버거</p>
+                        <p class="price">₩5,500</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('새우 버거', 6000)">
+                        <img src="/static/shrimp_burger.png" alt="Shrimp Burger">
+                        <p class="name">새우 버거</p>
+                        <p class="price">₩6,000</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('리얼 치즈 버거', 7000)">
+                        <img src="/static/real_cheese_burger.png" alt="Real Cheese Burger">
+                        <p class="name">리얼 치즈 버거</p>
+                        <p class="price">₩7,000</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('베이컨 버거', 6500)">
+                        <img src="/static/bacon_burger.png" alt="Bacon Burger">
+                        <p class="name">베이컨 버거</p>
+                        <p class="price">₩6,500</p>
+                    </div>
+                </div>
+
+                <div id="side" class="tab-content">
+                    <div class="menu-item" onclick="addToCart('감자튀김', 2000)">
+                        <img src="/static/fries.png" alt="French Fries">
+                        <p class="name">감자튀김</p>
+                        <p class="price">₩2,000</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('양파링', 2500)">
+                        <img src="/static/onion_rings.png" alt="Onion Rings">
+                        <p class="name">양파링</p>
+                        <p class="price">₩2,500</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('치즈스틱', 2000)">
+                        <img src="/static/cheese_sticks.png" alt="Cheese Sticks">
+                        <p class="name">치즈스틱</p>
+                        <p class="price">₩2,000</p>
+                    </div>
+                </div>
+
+                <div id="drink" class="tab-content">
+                    <div class="menu-item" onclick="addToCart('콜라', 1500)">
+                        <img src="/static/drink.png" alt="Cola">
+                        <p class="name">콜라</p>
+                        <p class="price">₩1,500</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('사이다', 1500)">
+                        <img src="/static/drink.png" alt="Cider">
+                        <p class="name">사이다</p>
+                        <p class="price">₩1,500</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('오렌지 주스', 2500)">
+                        <img src="/static/orange_juice.png" alt="Orange Juice">
+                        <p class="name">오렌지 주스</p>
+                        <p class="price">₩2,500</p>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('레모네이드', 3000)">
+                        <img src="/static/lemonade.png" alt="Lemonade">
+                        <p class="name">레모네이드</p>
+                        <p class="price">₩3,000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Cart Section -->
+            <div id="cart-section">
+                <div class="cart-header">
+                    <h3>주문 내역</h3>
+                    <button onclick="clearCart()" class="clear-btn">전체 삭제</button>
+                </div>
+                <ul id="cart-list">
+                    <!-- Cart items will be added here -->
+                    <li class="empty-cart">선택된 메뉴가 없습니다.</li>
+                </ul>
+                <div class="cart-total">
+                    <span>총 결제금액</span>
+                    <span id="total-price">0원</span>
+                </div>
+            </div>
+
+            <!-- 3. Chat Section -->
+            <div id="chat-section">
+                <div id="chat-container">
+                    <div class="message system" data-sender="AI 키오스크">
+                        <div class="bubble">안녕하세요! 상단 메뉴를 선택하거나 음성으로 주문해주세요.</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="mic-btn" class="glow-effect">
+                        <span class="icon">🎙️</span>
+                    </button>
+                    <div id="status-text">버튼을 누르고 말씀하세요...</div>
+                </div>
+            </div>
+
+            <!-- Fallback Text Input -->
+            <div id="text-input-area" class="hidden">
+                <input type="text" id="user-input" placeholder="직접 입력...">
+                <button id="send-btn">전송</button>
+            </div>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
