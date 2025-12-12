@@ -1,135 +1,88 @@
-# 🧠 Project Context: AI Voice Kiosk
+# Project Context & Specifications
 
-이 문서는 AI Voice Kiosk 프로젝트의 기술적 맥락, 아키텍처 원칙, 코딩 컨벤션을 정의합니다.
-AI(Assistant)는 코드를 생성하거나 수정할 때 반드시 이 문서를 기준으로 작업해야 합니다.
+## 1. 핵심 파일 구조 (Core File Structure)
+이 프로젝트는 **Backend-First** 구조 위에 정적 프론트엔드 파일을 서빙하는 형태를 취하고 있습니다.
 
-## 1. 프로젝트 개요 (Project Overview)
-
-목표: 음성(STT)으로 주문을 받고, RAG를 통해 정확한 메뉴 정보를 검색하여, LLM이 자연스러운 음성(TTS)으로 응답하는 키오스크 시스템 구현.
-
-핵심 가치: 빠른 응답 속도, 정확한 의도 파악, 할루시네이션(거짓 정보) 방지.
-
-## 2. 기술 스택 및 버전 (Tech Stack & Versions)
-
-Language: Python 3.11+
-
-Backend Framework: FastAPI (비동기 처리 필수)
-
-AI Components:
-
-LLM: OpenAI gpt-4o (Main), Claude 3.5 Sonnet (Fallback)
-
-STT: OpenAI Whisper (base or small model for local, API for cloud)
-
-TTS: ElevenLabs (High Quality) or gTTS (Free/Test)
-
-Database:
-
-Vector DB: ChromaDB (메뉴 설명, 특징 임베딩 저장)
-
-Relational DB: SQLite (menu.db - 가격, 재고, 품절 여부 등 정형 데이터)
-
-Environment: .env 파일을 통한 API Key 관리 (절대 코드에 하드코딩 금지)
-
-## 3. 디렉토리 구조 및 역할 (Directory Structure)
-
-코드를 작성하거나 파일을 생성할 때 아래 구조를 엄격히 준수하십시오.
-
-ai-voice-kiosk/
+```
+AI-Voice-Kiosk-Project/
 ├── src/
-│   ├── main.py            # FastAPI 앱 진입점 (Lifespan 관리, 엔드포인트 정의)
-│   ├── core/              # 설정(Config), 로깅, 예외 처리
-│   ├── audio/             # 오디오 처리 모듈
-│   │   ├── stt.py         # Speech-to-Text 클래스 (Transcriber)
-│   │   └── tts.py         # Text-to-Speech 클래스 (Synthesizer)
-│   ├── llm/               # LLM 통신 모듈
-│   │   ├── client.py      # OpenAI/Claude API 클라이언트
-│   │   └── prompts.py     # 시스템 프롬프트 및 템플릿 관리
-│   ├── rag/               # RAG 파이프라인
-│   │   ├── vector_db.py   # ChromaDB 초기화 및 검색 로직
-│   │   └── ingestion.py   # 데이터 전처리 및 임베딩 적재 (Admin용)
-│   ├── schemas/           # Pydantic 모델 (Request/Response 스키마)
-│   └── utils/             # 공통 유틸리티 함수
-├── data/                  # 로컬 데이터 저장소 (SQLite, ChromaDB 파일)
-├── tests/                 # 단위 테스트 (Pytest)
-└── requirements.txt       # 의존성 목록
+│   ├── main.py                # [Entry Point] FastAPI 앱, 라우팅, LLM 엔드포인트 정의
+│   ├── core/config.py         # [Config] 환경설정 (Ollama URL, Model ID, DB 경로)
+│   ├── llm/client.py          # [AI] Custom OpenAI Client를 이용한 Ollama 통신 래퍼
+│   ├── rag/vector_db.py       # [RAG] ChromaDB 초기화, 데이터 삽입, 유사도 검색 로직
+│   └── static/                # [Frontend]
+│       ├── index.html         # 전체 UI 레이아웃 (Grid/Flex 기반 3단 구성)
+│       ├── style.css          # CSS 변수 기반 다크 테마, 애니메이션 스타일
+│       └── script.js          # Web Speech API 제어, Fetch 통신, DOM 조작
+└── data/                      # [Persistence] ChromaDB 데이터 저장소
+```
 
+---
 
-## 4. 아키텍처 원칙 (Architecture Principles)
+## 2. 데이터 명세 (Data Specifications)
 
-### 4.1. 비동기 우선 (Async First)
+### **2.1. Vector DB Schema (ChromaDB)**
+메뉴 데이터는 아래와 같은 메타데이터 구조로 저장되어 RAG 검색에 활용됩니다.
+- **Collection Name**: `menu_items`
+- **Document (Content)**: 메뉴의 상세 설명 (예: "톡 쏘는 탄산이 버거의 느끼함을...")
+- **Metadata**:
+  - `name`: 메뉴명 (Unique ID 역할)
+  - `price`: 가격 (Integer)
+  - `category`: 카테고리 (버거, 사이드, 음료)
 
-LLM API 호출, DB 조회, 외부 API 통신은 반드시 async/await를 사용하여 Non-blocking으로 구현해야 합니다.
+### **2.2. API Spec (`/api/chat`)**
+프론트엔드와 백엔드 간의 통신 규격입니다.
 
-Bad: requests.get(...)
+**Request (JSON)**
+```json
+{
+  "text": "사용자 발화 내용",
+  "cart": [
+    { "name": "불고기 버거", "price": 5000 },
+    { "name": "콜라", "price": 1500 }
+  ]
+}
+```
 
-Good: httpx.AsyncClient, await openai.ChatCompletion.acreate(...)
+**Response (JSON)**
+```json
+{
+  "status": "success",
+  "response": "네, 불고기 버거 하나 추가해 드렸습니다.",
+  "order_complete": false,  // true일 경우 주문 종료 프로세스 실행
+  "commands": [             // UI 제어 명령 목록
+    { "type": "add", "item": "불고기 버거" }
+  ]
+}
+```
 
-### 4.2. RAG 워크플로우 (Retrieval-Augmented Generation)
+---
 
-Query Analysis: 사용자의 질문에서 핵심 키워드 추출 (예: "시원한 거", "커피").
+## 3. 기술적 제약 사항 (Technical Constraints)
 
-Hybrid Search:
+1.  **브라우저 의존성 (Browser Dependency)**:
+    - **Web Speech API**를 사용하므로, **Google Chrome** 브라우저가 필수적입니다. 다른 브라우저에서는 음성 인식 품질이 떨어지거나 동작하지 않을 수 있습니다.
+    - HTTPS 또는 localhost 환경에서만 마이크 권한 획득이 가능합니다.
 
-Semantic Search (Vector): 메뉴 설명, 맛 표현 검색.
+2.  **로컬 리소스 요구사항 (Hardware)**:
+    - **Ollama (Gemma3:12b)** 모델을 구동하기 위해 최소 8GB 이상의 VRAM(GPU) 또는 16GB 이상의 시스템 RAM이 권장됩니다.
+    - 사양이 낮을 경우 응답 속도(Latency)가 느려져 실시간 대화 경험이 저하될 수 있습니다.
 
-Keyword Search (SQL): 가격, 재고 필터링.
+3.  **컨텍스트 윈도우 (Context Window)**:
+    - 현재 채팅 히스토리 전체를 LLM에 보내는 것이 아니라, **현재 발화 + 장바구니 상태**만 보냅니다. 따라서 "아까 말한 그거 취소해줘" 같은 멀티턴 참조 기능은 제한적일 수 있습니다.
 
-Context Injection: 검색된 상위 3~5개 메뉴 정보를 프롬프트에 주입.
+---
 
-Response: LLM이 Context를 기반으로 친절한 응답 생성.
+## 4. 개선 사항 (Future Improvements)
 
-### 4.3. 예외 처리 및 안정성
+1.  **멀티턴 대화 메모리 (Conversation Memory)**:
+    - LangChain 등을 도입하여 이전 대화 문맥을 유지하면 더 자연스러운 연속 대화가 가능합니다.
+    
+2.  **데이터베이스 마이그레이션**:
+    - 현재 하드코딩된 메뉴 데이터를 SQLite나 PostgreSQL로 이관하여 관리자 페이지에서 메뉴를 수정할 수 있도록 개선이 필요합니다.
 
-API 호출 실패 시 재시도(Retry) 로직을 포함해야 합니다.
+3.  **TTS 품질 향상**:
+    - 브라우저 기본 TTS 대신, ElevenLabs나 OpenAI TTS API를 연동하면 더욱 사람 같은 목소리를 제공할 수 있습니다.
 
-STT 인식 실패 시 "죄송합니다, 다시 말씀해 주시겠어요?"와 같은 기본 Fallback 응답을 준비합니다.
-
-5. 코딩 컨벤션 (Coding Conventions)
-
-### 5.1. 스타일 가이드
-
-PEP 8 표준을 준수합니다.
-
-Type Hinting: 모든 함수 인자와 반환값에 타입 힌트를 명시합니다.
-
-# Good
-async def get_menu_recommendation(query: str) -> List[MenuSchema]:
-    ...
-
-
-Docstrings: Google Style Docstring을 사용하여 함수와 클래스를 설명합니다.
-
-### 5.2. 변수 및 함수 명명
-
-Variables/Functions: snake_case (예: load_menu_data, user_query)
-
-Classes: PascalCase (예: MenuRecommender, AudioProcessor)
-
-Constants: UPPER_CASE (예: MAX_RETRY_COUNT, DEFAULT_MODEL_NAME)
-
-### 6. 데이터 명세 (Data Specifications)
-
-### 6.1. Menu Schema (SQLite & Vector Meta)
-
-메뉴 데이터는 다음 필드를 반드시 포함해야 합니다.
-
-id (int): 고유 ID
-
-name (str): 메뉴 이름 (예: "아이스 아메리카노")
-
-category (str): 카테고리 (예: "Coffee", "Dessert")
-
-price (int): 가격
-
-description (str): 메뉴 설명 (임베딩 대상)
-
-tags (List[str]): 특징 태그 (예: ["카페인", "시원함", "쓴맛"])
-
-is_sold_out (bool): 품절 여부
-
-### 7. 주의 사항 (Constraints)
-
-응답 속도: STT 종료 후 TTS 시작까지 2초 이내를 목표로 합니다. (스트리밍 방식 고려)
-
-보안: 사용자 음성 데이터는 처리 후 즉시 메모리에서 삭제하며, 서버에 영구 저장하지 않습니다.
+4.  **동시성 처리**:
+    - 여러 키오스크가 동시에 한 서버에 접속할 경우를 대비해 Vector DB 세션 관리 및 LLM 큐잉 시스템 도입이 필요합니다.
